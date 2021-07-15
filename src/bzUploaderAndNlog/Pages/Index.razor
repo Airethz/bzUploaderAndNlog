@@ -1,0 +1,116 @@
+﻿@page "/"
+@using Microsoft.Extensions.Logging;
+@using System.IO
+@inject ILogger<Index> logger
+@using Syncfusion.Blazor.Inputs
+
+<div class="box">
+    <span>訊息： @message</span>
+    <br />
+    <button @onclick="CreateErrorMessageAsync">例外異常測試</button>
+</div>
+
+<h3><mark class="green">上傳完沒有ClearAll</mark></h3>
+
+<div class="box">
+    <div class="title">
+        <mark class="blue">AutoUpload = false</mark>
+    </div>
+    <div class="content">
+        結果：
+        @foreach (var item in result1)
+        {
+            <div>
+                @item
+            </div>
+        }
+    </div>
+    <SfUploader AutoUpload="false">
+        <UploaderEvents ValueChange="OnChange1"></UploaderEvents>
+    </SfUploader>
+</div>
+
+<div class="box">
+    <div class="title">
+        <mark class="blue">AutoUpload = true</mark>
+    </div>
+    <div class="content">
+        結果：
+        @foreach (var item in result2)
+        {
+            <div>
+                @item
+            </div>
+        }
+    </div>
+    <SfUploader AutoUpload="true">
+        <UploaderEvents ValueChange="OnChange2"></UploaderEvents>
+    </SfUploader>
+</div>
+
+@code{
+    public string message { get; set; }
+
+    List<string> result1 = new List<string>();
+    List<string> result2 = new List<string>();
+    string path = "";
+
+    protected override void OnInitialized()
+    {
+        string currentDirectory = Directory.GetCurrentDirectory();
+        path = Path.Combine(currentDirectory, "temp");
+    }
+
+    public void CreateErrorMessageAsync()
+    {
+        try
+        {
+            throw new Exception("拋出異常");
+        }
+        catch (Exception e)
+        {
+            message = e.Message.ToString();
+            logger.LogInformation(message);
+        }
+    }
+
+    private void OnChange1(UploadChangeEventArgs args)
+    {
+        string text = $"檔案個數：{args.Files.Count}";
+        result1.Add(text);
+        logger.LogInformation("AutoUpload = false");
+        logger.LogInformation(text);
+        foreach (var file in args.Files)
+        {
+            string newFilename = Guid.NewGuid().ToString() + $".{file.FileInfo.Type.ToLower()}";
+            logger.LogInformation($"檔名：{file.FileInfo.Name},新檔名：{newFilename},size：{file.FileInfo.Size},上傳size：{file.Stream.Length},狀態：{file.FileInfo.Status}");
+            string pathImage = Path.Combine(path, newFilename);
+            using (FileStream filestream = new FileStream(pathImage, FileMode.Create, FileAccess.Write))
+            {
+                file.Stream.WriteTo(filestream);
+                filestream.Close();
+                file.Stream.Close();
+            }
+        }
+    }
+
+    private void OnChange2(UploadChangeEventArgs args)
+    {
+        string text = $"檔案個數：{args.Files.Count}";
+        result2.Add(text);
+        logger.LogInformation("AutoUpload = true");
+        logger.LogInformation(text);
+        foreach (var file in args.Files)
+        {
+            string newFilename = Guid.NewGuid().ToString() + $".{file.FileInfo.Type.ToLower()}";
+            logger.LogInformation($"檔名：{file.FileInfo.Name},新檔名：{newFilename},size：{file.FileInfo.Size},上傳size：{file.Stream.Length},狀態：{file.FileInfo.Status}");
+            string pathImage = Path.Combine(path, newFilename);
+            using (FileStream filestream = new FileStream(pathImage, FileMode.Create, FileAccess.Write))
+            {
+                file.Stream.WriteTo(filestream);
+                filestream.Close();
+                file.Stream.Close();
+            }
+        }
+    }
+}

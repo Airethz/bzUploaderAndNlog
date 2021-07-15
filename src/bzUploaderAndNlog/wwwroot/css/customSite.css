@@ -1,0 +1,35 @@
+﻿
+
+.box{
+    margin: .3em 0 1em 0 ;
+}
+
+    .box .title{
+        font-size:1.3em;
+    }
+
+    .box .content {
+        font-size: 1em;
+    }
+
+mark {
+    display: inline-block;
+    line-height: 0em;
+    padding-bottom: 0.5em;
+}
+
+    mark.blue {
+        background-color: #a1daff;
+    }
+
+    mark.green {
+        background-color: #a1ffc0;
+    }
+
+    mark.pink {
+        background-color: #ffa1ca;
+    }
+
+    mark.red {
+        background-color: #ffa1a1;
+    }
