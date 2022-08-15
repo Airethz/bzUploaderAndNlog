@@ -105,14 +105,25 @@
         logger.LogInformation(text);
         foreach (var file in args.Files)
         {
-            string newFilename = Guid.NewGuid().ToString() + $".{file.FileInfo.Type.ToLower()}";
-            logger.LogInformation($"檔名：{file.FileInfo.Name},新檔名：{newFilename},size：{file.FileInfo.Size},上傳size：{file.Stream.Length},狀態：{file.FileInfo.Status}");
-            string pathImage = Path.Combine(path, newFilename);
-            using (FileStream filestream = new FileStream(pathImage, FileMode.Create, FileAccess.Write))
+            logger.LogInformation($"檔名：{file.FileInfo?.Name},size：{file.FileInfo?.Size},上傳size：{file.Stream.Length},狀態：{file.FileInfo?.Status},狀態碼：{file.FileInfo?.StatusCode}");
+            try
             {
-                file.Stream.WriteTo(filestream);
-                filestream.Close();
-                file.Stream.Close();
+                if (file.FileInfo?.StatusCode == "1")
+                {
+                    string newFilename = Guid.NewGuid().ToString() + $".{file.FileInfo.Type.ToLower()}";
+
+                    string pathImage = Path.Combine(path, newFilename);
+                    using (FileStream filestream = new FileStream(pathImage, FileMode.Create, FileAccess.Write))
+                    {
+                        file.Stream.WriteTo(filestream);
+                        filestream.Close();
+                        file.Stream.Close();
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
         await upload2.ClearAllAsync();
